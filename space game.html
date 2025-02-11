@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Match Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <style>
+        body { text-align: center; background: #000; color: white; }
+        canvas { display: block; margin: auto; }
+    </style>
+</head>
+<body>
+
+<script>
+class MainMenu extends Phaser.Scene {
+    constructor() {
+        super({ key: "MainMenu" });
+    }
+
+    preload() {
+        this.load.image("background", "https://i.imgur.com/UZlM4Lk.jpg");
+        this.load.image("startButton", "https://i.imgur.com/vKRaWuz.png");
+    }
+
+    create() {
+        this.add.image(160, 240, "background").setAlpha(0.5);
+        let startButton = this.add.image(160, 300, "startButton").setInteractive();
+        startButton.on("pointerdown", () => this.scene.start("MatchGame"));
+        this.add.text(90, 200, "Space Match Game", { fontSize: "20px", fill: "#fff" });
+    }
+}
+
+class MatchGame extends Phaser.Scene {
+    constructor() {
+        super({ key: "MatchGame" });
+    }
+
+    preload() {
+        this.load.spritesheet("tiles", "YOUR_SPRITESHEET_URL_HERE", { frameWidth: 128, frameHeight: 128 });
+    }
+
+    create() {
+        this.gridSize = 5;
+        this.tileSize = 64;
+        this.tiles = [];
+
+        for (let row = 0; row < this.gridSize; row++) {
+            this.tiles[row] = [];
+            for (let col = 0; col < this.gridSize; col++) {
+                let tile = this.add.sprite(50 + col * this.tileSize, 100 + row * this.tileSize, "tiles", Phaser.Math.Between(0, 4))
+                    .setInteractive()
+                    .setScale(0.5);
+                tile.row = row;
+                tile.col = col;
+                tile.on("pointerdown", () => this.selectTile(tile));
+                this.tiles[row][col] = tile;
+            }
+        }
+    }
+
+    selectTile(tile) {
+        if (this.selectedTile) {
+            this.swapTiles(this.selectedTile, tile);
+            this.selectedTile = null;
+        } else {
+            this.selectedTile = tile;
+        }
+    }
+
+    swapTiles(tile1, tile2) {
+        let tempFrame = tile1.frame.name;
+        tile1.setFrame(tile2.frame.name);
+        tile2.setFrame(tempFrame);
+        this.checkMatches();
+    }
+
+    checkMatches() {
+        let matchedTiles = [];
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize - 2; col++) {
+                if (this.tiles[row][col].frame.name === this.tiles[row][col + 1].frame.name &&
+                    this.tiles[row][col].frame.name === this.tiles[row][col + 2].frame.name) {
+                    matchedTiles.push(this.tiles[row][col], this.tiles[row][col + 1], this.tiles[row][col + 2]);
+                }
+            }
+        }
+        matchedTiles.forEach(tile => {
+            tile.setFrame(Phaser.Math.Between(0, 4));
+        });
+    }
+}
+
+const config = {
+    type: Phaser.AUTO,
+    width: 320,
+    height: 480,
+    backgroundColor: "#000",
+    scene: [MainMenu, MatchGame]
+};
+
+const game = new Phaser.Game(config);
+</script>
+
+</body>
+</html><!DOCTYPE html>
+
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title>Hello, World!</title>
+</head>
+<body>
+  <h1>
+    Hello, World!
+  </h1>
+</body>
+</html>
